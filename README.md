@@ -22,3 +22,14 @@ All the steps of the Buildspace tutorial to create a web3 dapp on Solana with Re
 
 5. Create a keypair
 `solana-keygen new`
+
+6. Create a keypair for the web3 
+
+To allow users to use your dApp or application on Solana, they will need to get access to their Keypair. A Keypair is a private key with a matching public key, used to sign transactions.
+
+There are two ways to obtain a Keypair:
+
+    Generate a new Keypair
+    Obtain a Keypair using the secret key
+
+You can obtain a new Keypair with the following: `cd app/src; node createKeyPair.js`
