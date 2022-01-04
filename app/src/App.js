@@ -23,7 +23,8 @@ const baseAccount = web3.Keypair.fromSecretKey(secret)
 const programID = new PublicKey(idl.metadata.address);
 
 // Set our network to devnet.
-const network = clusterApiUrl('devnet');
+// const network = clusterApiUrl('devnet');
+const network = process.env.REACT_APP_SOLANA_NETWORK || clusterApiUrl('devnet');
 
 // Controls how we want to acknowledge when a transaction is "done".
 const opts = {
@@ -32,7 +33,7 @@ const opts = {
 
 
 // Constants
-const TWITTER_HANDLE = '__dvd';
+const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 
@@ -126,7 +127,46 @@ const App = () => {
     }
   };
 
+  const deleteGif = async (gif) => {
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+
+      await program.rpc.deleteGif(gif.gifLink, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("GIF successfully deleted", gif)
+
+      await getGifList();
+    } catch (error) {
+      console.log("Error deleting GIF:", error)
+    }
+  };
+
+  const voteGif = async (gif) => {
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programID, provider);
+
+      await program.rpc.voteGif(gif, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log("GIF successfully voted", gif)
+
+      await getGifList();
+    } catch (error) {
+      console.log("Error deleting GIF:", error)
+    }
+  };
+
   const renderConnectedContainer = () => {
+    const provider = getProvider();
     // If we hit this, it means the program account hasn't been initialized.
     if (gifList === null) {
       return (
@@ -162,7 +202,14 @@ const App = () => {
             {gifList.map((item, index) => (
               <div className="gif-item" key={index}>
                 <img src={item.gifLink} alt={item.gifLink} onError={(evt) => { onImgError(item, evt) }} />
-                <p className="footer-text">{item.userAddress.toString()}</p>
+                <p className="footer-text">Owner: {item.userAddress.toString()}</p>
+                <p className="footer-text">Votes: {item.votesCount.toString()}</p>
+                {provider.wallet.publicKey.toString() === item.userAddress.toString() &&
+                  <button onClick={() => { deleteGif(item) }}>Delete it</button>
+                }
+                {provider.wallet.publicKey.toString() !== item.userAddress.toString() &&
+                  <button onClick={() => { voteGif(item) }}>Vote it</button>
+                }
               </div>
             ))}
           </div>
@@ -238,6 +285,7 @@ const App = () => {
           {/* We just need to add the inverse here! */}
           {walletAddress && renderConnectedContainer()}
         </div>
+        {/*
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
@@ -247,6 +295,7 @@ const App = () => {
             rel="noreferrer"
           >{`built on @${TWITTER_HANDLE}`}</a>
         </div>
+        */}
       </div>
     </div>
   );
