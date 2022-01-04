@@ -8,7 +8,7 @@ import {
 
 import idl from './idl.json';
 const kpenv = process.env.REACT_APP_KEYPAIR;
-const kp = JSON.parse(kpenv);
+const kp = JSON.parse(Buffer.from(kpenv, 'base64').toString('ascii'));
 
 
 // SystemProgram is a reference to the Solana runtime!
