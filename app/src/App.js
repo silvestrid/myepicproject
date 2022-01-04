@@ -7,7 +7,9 @@ import {
 } from '@project-serum/anchor';
 
 import idl from './idl.json';
-import kp from './keypair.json'
+const kpenv = process.env.REACT_APP_KEYPAIR;
+const kp = JSON.parse(kpenv);
+
 
 // SystemProgram is a reference to the Solana runtime!
 const { SystemProgram } = web3;
@@ -159,7 +161,8 @@ const App = () => {
             {/* We use index as the key instead, also, the src is now item.gifLink */}
             {gifList.map((item, index) => (
               <div className="gif-item" key={index}>
-                <img src={item.gifLink} alt={item.gifLink} />
+                <img src={item.gifLink} alt={item.gifLink} onError={(evt) => { onImgError(item, evt) }} />
+                <p className="footer-text">{item.userAddress.toString()}</p>
               </div>
             ))}
           </div>
@@ -167,6 +170,10 @@ const App = () => {
       )
     }
   }
+
+  const onImgError = (gif, evt) => {
+    setGifList(gifList.filter(item => item.gifLink !== gif.gifLink))
+  };
 
   const getGifList = async () => {
     try {
@@ -181,7 +188,7 @@ const App = () => {
       console.log("Error in getGifList: ", error)
       setGifList(null);
     }
-  }
+  };
 
   const createGifAccount = async () => {
     try {

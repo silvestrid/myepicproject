@@ -5,6 +5,10 @@
   text-align: center;
 }
 
+.invisible {
+  display: none;
+}
+
 .container {
   height: 100%;
   display: flex;
